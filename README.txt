@@ -48,12 +48,14 @@ l'API est accessible via :
 
 .env : contient les informations de connexion à la base de données pour tester en local
 node_modules : dossiers généré automatiquement lors de l'execution de la webapp en local 
-le fichier .gitignore permet d'exclure ".env" et "node_modules" lors du transfert vers github
+le fichier .gitignore permet d'exclure le fichier ".env" et le dossier "node_modules" lors du transfert vers github
 
 
+cd .\node-azure-sql\
 
-az login
-az group create --name webapp-node-js --location francecentral
+echo "node_modules/" >> .gitignore
+echo ".env" >> .gitignore
+
 
 transférer le contenu du dossier (ne pas inclure le fichier .env et le dossier node_modules) : 
 
@@ -61,15 +63,28 @@ git init
 git add .
 git commit -m "Initial commit"
 
+git remote add origin https://github.com/soufianetalibi/webapp-nodejs-sql.git
+git remote -v
+git branch -M main
+git push -u origin main
+
+az login
+az group create --name webapp-node-js --location francecentral
+
+az appservice plan create --name MonPlanApp --resource-group webapp-node-js --sku B1 --is-linux
 az webapp create --resource-group webapp-node-js --plan MonPlanApp --name MonAppNode --runtime "NODE:22-lts"
 
 az webapp deployment source config-local-git --name MonAppNode --resource-group webapp-node-js
+ --> elle retourne une URL : https://<username>@MonAppNode.scm.azurewebsites.net/MonAppNode.git
 
-Ceci va générer : 
-
-git remote add azure
+git remote add azure URL
 
 git push azure main
+
+Check : 
+az webapp browse --name MonAppNode --resource-group webapp-node-js
+az webapp log tail --name MonAppNode --resource-group webapp-node-js
+
 
 Dans Azure Portal ? Ton WebApp ? Configuration ? Paramètres d’application :
  DB_USER
